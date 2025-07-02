@@ -5,6 +5,8 @@ import requests
 import sys
 from urllib.parse import urlparse
 
+payldcnt = 0 
+
 def help():
 	print('''
 	Usage: python3 rf.py domain [options][v-verbose]
@@ -14,28 +16,33 @@ def help():
 	dir - Enumerate hidden directories
 	For example
 ''')
+def subdomain():
+	try:
+		persis = []
+		print(f"Enumerating Subdomains of {basedomain}\n\n")
+		for subdom in dictionary:
+			res = requests.get(f'https://{subdom}.{basedomain}')
+			global payldcnt
+			payldcnt += 1
+			print(f'({payldcnt} of {len(dictionary)}): {res.status_code}-->{res.url}')
+	except requests.exceptions.ConnectionError:
+			print(basedomain)
+
+def subdir():
+	pass
+	
 try:
-	url = sys.argv[1]
-	option = sys.argv[2]
-	wordlist = sys.argv[3]
-	verbose = sys.argv[4]
+	url = urlparse(str(sys.argv[1]))
+	basedomain = url.path
+	print(basedomain)
+	option = str(sys.argv[2])
+	wordlist = str(sys.argv[3])
+		
+	with open(wordlist.strip(),'r')as file:
+		dictionary = file.read().splitlines()
+	 
 
-	def subdomain(url,wordlist):
-		try:
-			dictionary = open(wordlist.strip(),'r').splitlines()
-			persis = []
-			print(f"Enumerating Subdomains of {url}\n\n")
-			for subdom in dictionary:
-				res = requests.get(f"http://{subdom}.{urlparse(url.strip())}")
-				if res.raise_for_status != None:
-					print(f'{res.url}:{res.status_code}')
-				else:
-					print(f'{res.url}:Valid')	
-					persis.append(res.url)
-				if(verbose):
-					print(f'Returned {str(res.status_code))} for {res.url}')				
-			
-			except ConnectionError:
-				print("Unable to probe, Check your Internet Connectivity")
-			
+except IndexError:
+	help
 
+subdomain()
