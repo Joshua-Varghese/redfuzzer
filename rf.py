@@ -43,6 +43,6 @@ try:
 	 
 
 except IndexError:
-	help
+	help()
 
 subdomain()
