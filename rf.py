@@ -35,6 +35,7 @@ def subdomain():
 def subdir():
 	print("Feature not completed yet")
 	
+
 if len(sys.argv) < 2 or sys.argv[1].lower()=='help':
 	help()
 else:
@@ -52,3 +53,4 @@ else:
 				subdir()
 	except IndexError:
 		print("Incorrect use of the program\n")
+
