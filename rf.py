@@ -5,7 +5,7 @@ import requests
 import sys
 from urllib.parse import urlparse
 
-
+#Help function
 def help():
 	print('''
 	Usage: DOMAIN [options] [v-verbose]
@@ -17,9 +17,13 @@ def help():
 	   python or python3 rf.py google.com subdomain wordlist.txt
 	   python or python3 rf.py google.com/RF wordlist.txt
 ''')
+
+#Function to enumerate subdomains.
 def subdomain():
-	payldcnt = 0 
+	print("worked")
 	persis = []
+	payldcnt = 0 
+
 	print(f"Enumerating Subdomains of {basedomain}\n")
 	for subdom in dictionary:
 		try:
@@ -32,6 +36,7 @@ def subdomain():
 
 	print("Subdomain Enumeration Finished",f"\nValid subdomains are -->{persis[0:]}")
 
+#Function to FUZZ hidden directories
 def subdir():
 	print("Feature not completed yet")
 	
@@ -41,7 +46,7 @@ if len(sys.argv) < 2 or sys.argv[1].lower()=='help':
 else:
 	try:
 		url = urlparse(str(sys.argv[2]))
-		basedomain = url.path
+		basedomain = url.netloc
 		option = str(sys.argv[1])
 		if option.lower() == "subdomain" or option.lower() == "dir":
 			wordlist = str(sys.argv[3])
