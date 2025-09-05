@@ -5,37 +5,67 @@ import requests
 import sys
 from urllib.parse import urlparse
 
+#Help function
 def help():
 	print('''
-	Usage: python3 rf.py domain [options][v-verbose]
+	Usage: DOMAIN [options]
 	OPTIONS:
 	help - To display this
 	subdomain - Enumerate subdomains
 	dir - Enumerate hidden directories
 	For example
+	   python or python3 rf.py https://google.com subdomain wordlist.txt
+	   python or python3 rf.py https://google.com/RF/about dir wordlist.txt
 ''')
-try:
-	url = sys.argv[1]
-	option = sys.argv[2]
-	wordlist = sys.argv[3]
-	verbose = sys.argv[4]
 
-	def subdomain(url,wordlist):
+def filter_domain(bd):
+	filter_bd = bd.split(".")
+	if filter_bd[0] == "www":
+		del filter_bd[0]
+	return ".".join(filter_bd)
+
+#Function to enumerate subdomains.
+def subdomain():
+
+	persis = []
+	payldcnt = 0 
+
+	print(f"Enumerating Subdomains of {basedomain}\n")
+	for subdom in dictionary:
 		try:
-			dictionary = open(wordlist.strip(),'r').splitlines()
-			persis = []
-			print(f"Enumerating Subdomains of {url}\n\n")
-			for subdom in dictionary:
-				res = requests.get(f"http://{subdom}.{urlparse(url.strip())}")
-				if res.raise_for_status != None:
-					print(f'{res.url}:{res.status_code}')
-				else:
-					print(f'{res.url}:Valid')	
-					persis.append(res.url)
-				if(verbose):
-					print(f'Returned {str(res.status_code))} for {res.url}')				
-			
-			except ConnectionError:
-				print("Unable to probe, Check your Internet Connectivity")
-			
+			res = requests.get(f'https://{subdom}.{basedomain}')
+		except:
+			continue
+		payldcnt += 1
+		print(f'({payldcnt} of {len(dictionary)}) {subdom}: {res.status_code}-->{res.url}')
+		persis.append(subdom)
+
+	print("Subdomain Enumeration Finished",f"\nValid subdomains are -->{persis[0:]}")
+
+#Function to FUZZ hidden directories
+def subdir():
+	print("Feature not completed yet")
+	
+
+if len(sys.argv) < 2 or sys.argv[1].lower()=='help':
+	help()
+else:
+	try:
+		url = urlparse(str(sys.argv[1])) # Get the url
+		option = str(sys.argv[2]) # Help, subdomain or dir fuzzing
+		wordlist = str(sys.argv[3]) # Handle wordlist
+		basedomain = filter_domain(url.netloc) #Suppose to return a url without the www. in it
+		print(basedomain)
+		dirfuzz = url.path
+		if option.lower() == "subdomain" or option.lower() == "dir":
+
+			with open(wordlist.strip(),'r')as file:
+				dictionary = file.read().splitlines()
+			if option.lower() == "subdomain":
+				subdomain()
+			else:
+				subdir()
+	except IndexError:
+		print("Incorrect use of the program")
+		help()
 
