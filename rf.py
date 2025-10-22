@@ -1,5 +1,8 @@
-#This is the script that will enumerate subdomains and directories on a website
-#Use of this tools should be confined for educational purpose only
+'''
+This is the script that will enumerate subdomains and directories on a website.
+Always keep in mind that all the request you sent using this script are logged network log
+of the target server or computer. Be responsible with the use.
+'''
 
 import requests
 import sys
@@ -18,6 +21,7 @@ def help():
 	   python or python3 rf.py https://google.com/RF/about dir wordlist.txt
 ''')
 
+#Function to filter out 'www' if it exist.
 def filter_domain(bd):
 	filter_bd = bd.split(".")
 	if filter_bd[0] == "www":
@@ -44,7 +48,10 @@ def subdomain():
 
 #Function to FUZZ hidden directories
 def subdir():
-	print("Feature not completed yet")
+	dir_persis = []
+	dir_payload_cnt = 0
+
+
 	
 
 if len(sys.argv) < 2 or sys.argv[1].lower()=='help':
