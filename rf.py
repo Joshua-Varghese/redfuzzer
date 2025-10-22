@@ -1,10 +1,31 @@
-#This is the script that will enumerate subdomains and directories on a website
-#Use of this tools should be confined for educational purpose only
+'''
+This is the script that will enumerate subdomains and directories on a website.
+Always keep in mind that all the request you sent using this script are logged network log
+of the target server or computer. Be responsible with the use.
+'''
 
 import requests
 import sys
 from urllib.parse import urlparse
+from urlfilter import filter_domain
 
+
+
+if len(sys.argv) < 2 or sys.argv[1].lower()=='help':
+	help()
+else:
+	try:
+		url = urlparse(str(sys.argv[1])) # Get the url
+		print(url)
+		option = str(sys.argv[2]) # Help, subdomain or dir fuzzing
+		wordlist = str(sys.argv[3]) # Handle wordlist
+		basedomain = filter_domain(url.netloc) #Suppose to return a url without the www. in it, if its www.google.com it returns google.com
+		connection_scheme = url.scheme
+		#dirfuzz = url.path
+		#print(dirfuzz)
+	except IndexError:
+		print("Incorrect use of the program")
+		help()
 #Help function
 def help():
 	print('''
@@ -15,14 +36,9 @@ def help():
 	dir - Enumerate hidden directories
 	For example
 	   python or python3 rf.py https://google.com subdomain wordlist.txt
-	   python or python3 rf.py https://google.com/RF/about dir wordlist.txt
+	   python or python3 rf.py https://google.com/RF dir wordlist.txt
 ''')
 
-def filter_domain(bd):
-	filter_bd = bd.split(".")
-	if filter_bd[0] == "www":
-		del filter_bd[0]
-	return ".".join(filter_bd)
 
 #Function to enumerate subdomains.
 def subdomain():
@@ -33,7 +49,7 @@ def subdomain():
 	print(f"Enumerating Subdomains of {basedomain}\n")
 	for subdom in dictionary:
 		try:
-			res = requests.get(f'https://{subdom}.{basedomain}')
+			res = requests.get(f'{connection_scheme}://{subdom}.{basedomain}')
 		except:
 			continue
 		payldcnt += 1
@@ -44,28 +60,30 @@ def subdomain():
 
 #Function to FUZZ hidden directories
 def subdir():
-	print("Feature not completed yet")
-	
+	dir_persis = []
+	dir_payload_cnt = 0
 
-if len(sys.argv) < 2 or sys.argv[1].lower()=='help':
-	help()
-else:
-	try:
-		url = urlparse(str(sys.argv[1])) # Get the url
-		option = str(sys.argv[2]) # Help, subdomain or dir fuzzing
-		wordlist = str(sys.argv[3]) # Handle wordlist
-		basedomain = filter_domain(url.netloc) #Suppose to return a url without the www. in it
-		print(basedomain)
-		dirfuzz = url.path
-		if option.lower() == "subdomain" or option.lower() == "dir":
+	print(f"Fuzzing Directories of {basedomain}\n")
+	for subdir in dictionary:
+		try:
+			res = requests.get(f'{connection_scheme}://{basedomain}/{subdir}')
+		except:
+			continue
+		dir_payload_cnt += 1
+		print(f'({dir_payload_cnt} of {len(dictionary)}) {basedomain}: {res.status_code}-->{res.url}')
+		if res.status_code == 200:
+			dir_persis.append(subdir)
 
-			with open(wordlist.strip(),'r')as file:
-				dictionary = file.read().splitlines()
-			if option.lower() == "subdomain":
-				subdomain()
-			else:
-				subdir()
-	except IndexError:
-		print("Incorrect use of the program")
-		help()
+	print("Subdirectory Fuzzing Finished",f"\nValid Subdirectories are -->{dir_persis[0:]}")
+
+
+if option.lower() == "subdomain" or option.lower() == "dir":
+
+	with open(wordlist.strip(),'r')as file:
+		dictionary = file.read().splitlines()
+	if option.lower() == "subdomain":
+		subdomain()
+	else:
+		subdir()
+
 
