@@ -9,25 +9,9 @@ import sys
 from urllib.parse import urlparse
 from urlfilter import filter_domain
 
-
-
-if len(sys.argv) < 2 or sys.argv[1].lower()=='help':
-	help()
-else:
-	try:
-		url = urlparse(str(sys.argv[1])) # Get the url
-		print(url)
-		option = str(sys.argv[2]) # Help, subdomain or dir fuzzing
-		wordlist = str(sys.argv[3]) # Handle wordlist
-		basedomain = filter_domain(url.netloc) #Suppose to return a url without the www. in it, if its www.google.com it returns google.com
-		connection_scheme = url.scheme
-		#dirfuzz = url.path
-		#print(dirfuzz)
-	except IndexError:
-		print("Incorrect use of the program")
-		help()
+global option
 #Help function
-def help():
+def seekhelp():
 	print('''
 	Usage: DOMAIN [options]
 	OPTIONS:
@@ -38,6 +22,16 @@ def help():
 	   python or python3 rf.py https://google.com subdomain wordlist.txt
 	   python or python3 rf.py https://google.com/RF dir wordlist.txt
 ''')
+print
+(r"""
+.%%%%%...%%%%%%..%%%%%...%%%%%%..%%..%%..%%%%%%..%%%%%%..%%%%%%..%%%%%..
+.%%..%%..%%......%%..%%..%%......%%..%%.....%%......%%...%%......%%..%%.
+.%%%%%...%%%%....%%..%%..%%%%....%%..%%....%%......%%....%%%%....%%%%%..
+.%%..%%..%%......%%..%%..%%......%%..%%...%%......%%.....%%......%%..%%.
+.%%..%%..%%%%%%..%%%%%...%%.......%%%%...%%%%%%..%%%%%%..%%%%%%..%%..%%.
+........................................................................
+
+""")
 
 
 #Function to enumerate subdomains.
@@ -75,6 +69,21 @@ def subdir():
 			dir_persis.append(subdir)
 
 	print("Subdirectory Fuzzing Finished",f"\nValid Subdirectories are -->{dir_persis[0:]}")
+
+if len(sys.argv) < 2 or sys.argv[1].lower()=='help':
+	seekhelp()
+else:
+	try:
+		url = urlparse(str(sys.argv[1])) # Get the url
+		option = str(sys.argv[2]) # Help, subdomain or dir fuzzing
+		wordlist = str(sys.argv[3]) # Handle wordlist
+		basedomain = filter_domain(url.netloc) #Suppose to return a url without the www. in it, if its www.google.com it returns google.com
+		connection_scheme = url.scheme
+		#dirfuzz = url.path
+		#print(dirfuzz)
+	except IndexError:
+		print("Incorrect use of the program")
+		seekhelp()
 
 
 if option.lower() == "subdomain" or option.lower() == "dir":
