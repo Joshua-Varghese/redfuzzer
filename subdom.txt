@@ -1,4 +1,0 @@
-api
-ajce
-ajcecart
-clubs
